@@ -1,0 +1,140 @@
+-- 3.	The following tables form part of a database held in a relational DBMS: 
+
+-- Hotel (HotelNo, Name, City) HotelNo is the primary key
+-- Room (RoomNo, HotelNo, Type, Price)
+-- Booking (HotelNo, GuestNo, DateFrom, DateTo, RoomNo)
+-- Guest (GuestNo, GuestName, GuestAddress) GuestNo is primary key
+
+-- Room contains room details for each hotel and (HotelNo, RoomNo) forms the primary key.Booking contains details of the bookings and the primary key comprises (HotelNo, GuestNo and DateFrom)
+-- Solve following queries by SQL
+create database swapnil_23;
+use swapnil_23;
+
+CREATE TABLE Hotel (
+    HotelNo INT PRIMARY KEY,
+    Name VARCHAR(255),
+    City VARCHAR(255)
+);
+
+CREATE TABLE Room (
+    RoomNo INT,
+    HotelNo INT,
+    Type VARCHAR(255),
+    Price DECIMAL(10, 2),
+    PRIMARY KEY (HotelNo, RoomNo),
+    FOREIGN KEY (HotelNo) REFERENCES Hotel(HotelNo)
+);
+
+CREATE TABLE Guest (
+    GuestNo INT PRIMARY KEY,
+    GuestName VARCHAR(255),
+    GuestAddress VARCHAR(255)
+);
+
+CREATE TABLE Booking (
+    HotelNo INT,
+    GuestNo INT,
+    DateFrom DATE,
+    DateTo DATE,
+    RoomNo INT,
+    PRIMARY KEY (HotelNo, GuestNo, DateFrom)
+);
+
+INSERT INTO Hotel (HotelNo, Name, City) VALUES
+(1, 'Hotel A', 'Pune'),
+(2, 'Grosvenor', 'London'),
+(3, 'Hotel C', 'London'),
+(4, 'Hotel D', 'City D'),
+(5, 'Hotel E', 'City E');
+
+INSERT INTO Room (RoomNo, HotelNo, Type, Price) VALUES
+(101, 1, 'Single', 100.00),
+(102, 1, 'Double', 150.00),
+(201, 2, 'Single', 120.00),
+(202, 2, 'Double', 180.00),
+(301, 3, 'Single', 110.00),
+(302, 3, 'Double', 160.00),
+(401, 4, 'Single', 130.00),
+(402, 4, 'Double', 200.00),
+(501, 5, 'Single', 140.00),
+(502, 5, 'Double', 220.00);
+
+INSERT INTO Room (RoomNo, HotelNo, Type, Price) VALUES
+(601, 6, 'Single', 1001.00),
+(602, 6, 'Double', 1501.00);
+
+INSERT INTO Guest (GuestNo, GuestName, GuestAddress) VALUES
+(1, 'John Doe', '123 Main St, Pune'),
+(2, 'Jane Smith', '456 Elm St, London'),
+(3, 'Michael Johnson', '789 Oak St, City C'),
+(4, 'Sarah Williams', '101 Pine St, City D'),
+(5, 'Robert Brown', '111 Cedar St, City E');
+
+INSERT INTO Booking (HotelNo, GuestNo, DateFrom, DateTo, RoomNo) VALUES
+(1, 1, '2023-11-01', '2023-11-05', 101),
+(2, 2, '2023-11-02', '2023-11-06', 202),
+(3, 3, '2023-11-03', '2023-11-07', 301),
+(4, 4, '2023-11-04', '2023-11-08', 402),
+(5, 5, '2023-11-05', '2023-11-09', 501),
+(1, 2, '2023-11-06', '2023-11-10', 102),
+(2, 3, '2023-11-07', '2023-11-11', 201),
+(3, 4, '2023-11-08', '2023-11-12', 302),
+(4, 5, '2023-11-09', '2023-11-13', 401),
+(5, 1, '2023-11-10', '2023-11-14', 502);
+
+-- 1.	List full details of all hotels.
+select * from hotel;
+
+-- 2.	How many hotels are there?
+select count(name) from hotel;
+
+-- 3.	List the price and type of all rooms at the Grosvenor Hotel.
+select price , type 
+from Room
+where HotelNo = (select HotelNo from hotel where Name = 'Grosvenor');
+
+-- 4.	List the number of rooms in each hotel.
+
+select name, count(RoomNo)
+from hotel
+inner join room
+where hotel.HotelNo = room.HotelNo
+group by name;
+
+-- 5.	Update the price of all rooms by 5%.
+SET SQL_SAFE_UPDATES = 0;
+update room set price = price * 1.05;
+
+-- 6.	List full details of all hotels in London.
+select * from Hotel where City = 'London';
+
+-- 7.	What is the average price of a room?
+select avg(price) from room;
+
+-- 8.	List all guests currently staying at the Grosvenor Hotel.
+select guest.GuestNo, guest.GuestName, guest.GuestAddress
+from guest
+inner join booking
+on guest.GuestNo = booking.GuestNo
+where (current_date() between DateFrom AND DateTo)
+AND
+Booking.HotelNo = (select HotelNo from Hotel where name = 'Grosvenor');
+
+
+-- 9.	List the number of rooms in each hotel in London. 
+select Hotel.name, count(*)
+from room
+inner join hotel
+on hotel.hotelNo = room.hotelNo
+where hotel.city = 'London'
+group by hotel.hotelNo;
+
+-- 10.Create one view on above database and query it.
+CREATE VIEW hotel_city_rooms AS
+SELECT Hotel.HotelNo, Hotel.Name, Hotel.City, COUNT(*)
+FROM Room
+INNER JOIN Hotel ON Room.HotelNo = Hotel.HotelNo
+GROUP BY Hotel.HotelNo, Hotel.Name, Hotel.City;
+
+select * from hotel_city_rooms;
+SELECT sum(num_rooms) FROM hotel_city_rooms;
