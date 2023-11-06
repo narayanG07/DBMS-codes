@@ -1,0 +1,120 @@
+-- 2.Create a database
+-- 1.	employee (employee name, street, city) ,employee name is primary key
+-- 2.	works (employee name, company name, salary)
+-- 3.	company (company name, city) ,company name is primary key
+-- 4.	manages (employee name, manager name)
+		-- Give an expression in SQL for each of the following queries.
+-- 1.	Find the names of all employees who work for First Bank Corporation.
+-- 2.	Find all employees who do not work for First Bank Coorporation
+-- 3.	Find the company that has most employees.
+-- 4.	Find all companies located in every in which small bank corporation is located
+-- 5.	Find details of employee having salary greater than 10,000.
+-- 6.	Update salary of all employees who work for First Bank Corporation by 10%.
+-- 7.	Find employee and their managers.
+-- 8.	Find the names, street and cities of all employees who work for First Bank Corporation and earn more than 10,000.
+-- 9.	Find those companies whose employees earn a higher salary,on average, than th average salary at First Bank Corporation
+
+create database swapni_23;
+use swapni_23;
+show tables;
+
+CREATE TABLE employee (
+    employee_name VARCHAR(50) PRIMARY KEY,
+    street VARCHAR(50),
+    city VARCHAR(50)
+);
+
+CREATE TABLE works (
+    employee_name VARCHAR(50),
+    company_name VARCHAR(50),
+    salary INT
+);
+
+CREATE TABLE company (
+    company_name VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50)
+);
+
+CREATE TABLE manages (
+    employee_name VARCHAR(50),
+    manager_name VARCHAR(50)
+);
+
+INSERT INTO employee (employee_name, street, city) VALUES 
+('John Doe', '123 Main St', 'New York'),
+('Jane Smith', '456 Elm St', 'Los Angeles'),
+('Michael Johnson', '789 Oak St', 'Chicago'),
+('Emily Williams', '101 Pine St', 'Houston'),
+('William Brown', '111 Cedar St', 'Miami');
+
+INSERT INTO works (employee_name, company_name, salary) VALUES 
+('John Doe', 'Company A', 50000),
+('Jane Smith', 'Company B', 60000),
+('Michael Johnson', 'Company C', 55000),
+('Emily Williams', 'Company A', 52000),
+('William Brown', 'Company B', 58000);
+
+INSERT INTO company (company_name, city) VALUES 
+('Company A', 'New York'),
+('Company B', 'Los Angeles'),
+('Company C', 'Chicago');
+
+INSERT INTO manages (employee_name, manager_name) VALUES 
+('John Doe', 'Jane Smith'),
+('Jane Smith', 'Michael Johnson'),
+('Michael Johnson', 'John Doe'),
+('Emily Williams', 'Jane Smith'),
+('William Brown', 'Michael Johnson');
+
+select * from employee;
+select * from manages;
+select * from works;
+select * from company;
+
+-- 1.	Find the names of all employees who work for Company A Corporation.
+select employee_name, company_name 
+from works 
+where company_name = 'Company A';
+
+-- 2.	Find all employees who do not work for Company A Coorporation
+select employee_name, company_name 
+from works 
+where company_name != 'Company A';
+
+-- 3.	Find the company that has most employees.
+select company_name , count(employee_name) 
+from works 
+group by company_name 
+order by count(employee_name) 
+desc limit 1;
+
+
+-- 4.	Find all companies located in every in which small bank corporation is located
+
+-- 5.	Find details of employee having salary greater than 10,000.
+select employee.employee_name, company_name, salary , company_name, salary
+from employee
+inner join works
+on employee.employee_name = works.employee_name
+where salary > 10000;
+
+-- 6.	Update salary of all employees who work for Company A Corporation by 10%.
+SET SQL_SAFE_UPDATES = 0;
+update works
+set salary = salary * 1.10
+where company_name = 'Company A';
+
+-- 7.	Find employee and their managers.
+select * from manages;
+
+-- 8.	Find the names, street and cities of all employees who work for Company A Corporation and earn more than 10,000.
+select employee.employee_name, street, city 
+from employee 
+inner join works
+on employee.employee_name = works.employee_name
+where company_name = 'Company A' and salary > 10000;
+
+-- 9.	Find those companies whose employees earn a higher salary,on average, than th average salary at Company A Corporation
+select company_name, salary
+from works
+where salary > (select avg(salary) from works where company_name = 'Company A');
