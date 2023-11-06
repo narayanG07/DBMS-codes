@@ -1,0 +1,105 @@
+-- 1.	Create a db called company consist of the following tables. 
+-- 1.Emp (eno,ename, job,hiredate,salary,commission,deptno) 
+-- 2.dept(deptno,deptname,location)
+-- eno is primary key in emp deptno is primary key in dept Solve Queries by SQL
+-- 1.	List the maximum salary paid to salesman
+-- 2.	List name of emp whose name start with ‘I’
+-- 3.	List details of emp who have joined before ’30-sept-81’
+-- 4.	List the emp details in the descending order of their basic salary
+-- 5.	List of no. of emp & avg salary for emp in the dept no ‘20’
+-- 6.	List the avg salary, minimum salary of the emp hiredatewise for dept no ‘10’.
+-- 7.	List emp name and its department
+-- 8.	List total salary paid to each department
+-- 9.	List details of employee working in ‘Dev’ department
+-- 10.	Update salary of all employees in deptno 10 by 5 %.
+
+
+
+
+create database swapni_23;
+use swapni_23;
+show tables;
+
+create table Emp(
+	eno int PRIMARY KEY,
+	ename varchar (30), 
+    job varchar(30),
+    hiredate date, 
+    salary int, 
+    commission decimal, 
+    deptno int
+); 
+create table dept(
+	deptno int PRIMARY KEY, 
+    deptname varchar(30), 
+    location varchar(30)
+);
+
+insert into Emp values
+(101, 'Om', 'Manager', '1980-12-17', 2500, NULL, 1),
+(102, 'Sumit', 'Salesman', '1981-06-09', 1400, 0.1, 2),
+(103, 'Shubham', 'Analyst', '1989-11-17', 3000, NULL, 3),
+(104, 'Abhishek', 'Salesman', '1985-12-17', 1250, 0.2, 2),
+(105, 'Ashwin', 'Clerk', '1991-05-27', 950, NULL, 4),
+(106, 'Rutik', 'Manager', '1995-06-04', 2975, NULL, 1),
+(107, 'Pranali', 'Analyst', '1997-09-27', 3000, NULL, 3),
+(108, 'Nilesh', 'Salesman', '2000-02-05', 1600, 0.15, 2),
+(109, 'Sakshi', 'Clerk', '2002-04-24', 1100, NULL, 4),
+(110, 'prerana', 'Manager', '2005-05-01', 2750, NULL, 1);
+insert into Emp values(111, 'Ishan', 'Manager', '2005-05-01', 2750, NULL, 1);
+select * from Emp;
+
+insert into dept values
+(1, 'HR', 'New York'),
+(2, 'Sales', 'Los Angeles'),
+(3, 'Finance', 'Chicago'),
+(4, 'IT', 'Houston');
+
+select * from dept;
+
+-- 1.	List the maximum salary paid to salesman
+SELECT MAX(salary) FROM Emp WHERE job = 'Salesman';
+
+
+-- 2. List name of emp whose name start with ‘I’
+select ename from Emp where ename like 'I%';
+
+-- 3.	List details of emp who have joined before ’30-sept-81’
+select * from Emp where hiredate < '1981-09-30';
+
+-- 4.	List the emp details in the descending order of their basic salary
+select * From Emp order by salary desc;
+
+-- 5.	List of no. of emp & avg salary for emp in the dept no ‘20’
+select count(*), avg(salary) from Emp where deptno = 20;
+-- or-- 
+select count(*), avg(salary) from Emp where deptno = 1;
+
+-- 6.	List the avg salary, minimum salary of the emp hiredatewise for dept no ‘1’.
+select avg(salary), min(salary) from Emp where deptno = 1 order by hiredate;
+
+-- 7.	List emp name and its department
+select ename , deptname
+from Emp
+inner join dept
+on emp.deptno = dept.deptno;
+
+-- 8.	List total salary paid to each department
+select deptname, sum(salary)
+from emp
+inner join dept
+on emp.deptno = dept.deptno
+group by deptname;
+
+-- 9.	List details of employee working in ‘Hr’ department
+select * from emp
+where deptno IN (select deptno from dept where deptname = 'Hr');
+
+-- 10.	Update salary of all employees in deptno 10 by 5 %.
+
+set SQL_SAFE_UPDATES = 0;
+
+update Emp
+set salary = salary * 1.05
+where deptno = 10;
+
