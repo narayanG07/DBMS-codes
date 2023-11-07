@@ -1,0 +1,129 @@
+13) Create the following tables.
+
+1)	PUBLISHER( PID , PNAME ,ADDRESS ,STATE ,PHONE ,EMAILID );
+2)	BOOK( ISBN ,BOOK_TITLE , CATEGORY , PRICE , COPYRIGHT_DATE , YEAR ,PAGE_COUNT ,PID );
+3)	AUTHOR(AID,ANAME,STATE,CITY ,ZIP,PHONE,URL )
+4)	AUTHOR_BOOK(AID,ISBN);
+5)	REVIEW(RID,ISBN,RATING);
+Solve following queries by 
+ 
+1.	Retrieve city, phone, url of author whose name is ‘CHETAN BHAGAT’.
+2.	Retrieve book title, reviewable id and rating of all books.
+3.	Retrieve book title, price, author name and url for publishers ‘MEHTA’.
+4.	In a PUBLISHER relation change the phone number of ‘MEHTA’ to 123456
+5.	Calculate and display the average, maximum, minimum price of each publisher.
+6.	Delete details of all books having a page count less than 100.
+7.	Retrieve details of all authors residing in city Pune and whose name begins with character
+8.	Retrieve details of authors residing in same city as ‘Korth’.
+9.	Create a procedure to update the value of page count of a book of given ISBN.
+10.	Create a function that returns the price of book with a given ISBN.
+ 
+
+
+-- Create PUBLISHER table
+CREATE TABLE PUBLISHER (
+    PID INT PRIMARY KEY,
+    PNAME VARCHAR(255),
+    ADDRESS VARCHAR(255),
+    STATE VARCHAR(255),
+    PHONE VARCHAR(10),
+    EMAILID VARCHAR(255)
+);
+
+-- Create BOOK table
+CREATE TABLE BOOK (
+    ISBN INT PRIMARY KEY,
+    BOOK_TITLE VARCHAR(255),
+    CATEGORY VARCHAR(255),
+    PRICE DECIMAL(10, 2),
+    COPYRIGHT_DATE DATE,
+    YEAR INT,
+    PAGE_COUNT INT,
+    PID INT,
+    FOREIGN KEY (PID) REFERENCES PUBLISHER(PID)
+);
+
+-- Create AUTHOR table
+CREATE TABLE AUTHOR (
+    AID INT PRIMARY KEY,
+    ANAME VARCHAR(255),
+    STATE VARCHAR(255),
+    CITY VARCHAR(255),
+    ZIP VARCHAR(10),
+    PHONE VARCHAR(10),
+    URL VARCHAR(255)
+);
+
+-- Create AUTHOR_BOOK table
+CREATE TABLE AUTHOR_BOOK (
+    AID INT,
+    ISBN INT,
+    FOREIGN KEY (AID) REFERENCES AUTHOR(AID),
+    FOREIGN KEY (ISBN) REFERENCES BOOK(ISBN)
+);
+
+-- Create REVIEW table
+CREATE TABLE REVIEW (
+    RID INT PRIMARY KEY,
+    ISBN INT,
+    RATING INT,
+    FOREIGN KEY (ISBN) REFERENCES BOOK(ISBN)
+);
+
+-- Insert sample data into the tables
+-- You can replace these values with your own sample data
+INSERT INTO PUBLISHER (PID, PNAME, ADDRESS, STATE, PHONE, EMAILID) VALUES
+(1, 'MEHTA', '123 Main St', 'CA', '555-123-4567', 'mehta@example.com');
+
+INSERT INTO BOOK (ISBN, BOOK_TITLE, CATEGORY, PRICE, COPYRIGHT_DATE, YEAR, PAGE_COUNT, PID) VALUES
+(101, 'Book1', 'Fiction', 19.99, '2020-01-01', 2020, 250, 1),
+(102, 'Book2', 'Non-Fiction', 24.99, '2019-02-01', 2019, 150, 1);
+
+INSERT INTO AUTHOR (AID, ANAME, STATE, CITY, ZIP, PHONE, URL) VALUES
+(201, 'CHETAN BHAGAT', 'MH', 'Pune', '411001', '555-987-6543', 'www.chetanbhagat.com');
+
+INSERT INTO AUTHOR_BOOK (AID, ISBN) VALUES
+(201, 101);
+
+INSERT INTO REVIEW (RID, ISBN, RATING) VALUES
+(1, 101, 4),
+(2, 102, 5);
+
+-- Now you can perform the requested SQL queries
+
+-- 1. Retrieve city, phone, url of author whose name is 'CHETAN BHAGAT'.
+SELECT CITY, PHONE, URL FROM AUTHOR WHERE ANAME = 'CHETAN BHAGAT';
+
+-- 2. Retrieve book title, reviewable id, and rating of all books.
+SELECT B.BOOK_TITLE, R.RID, R.RATING
+FROM BOOK B
+JOIN REVIEW R ON B.ISBN = R.ISBN;
+
+-- 3. Retrieve book title, price, author name, and url for publishers 'MEHTA'.
+SELECT B.BOOK_TITLE, B.PRICE, A.ANAME, A.URL
+FROM BOOK B
+JOIN AUTHOR_BOOK AB ON B.ISBN = AB.ISBN
+JOIN AUTHOR A ON AB.AID = A.AID
+WHERE B.PID = (SELECT PID FROM PUBLISHER WHERE PNAME = 'MEHTA');
+
+-- 4. In the PUBLISHER relation change the phone number of 'MEHTA' to 123456
+UPDATE PUBLISHER SET PHONE = '123456' WHERE PNAME = 'MEHTA';
+
+-- 5. Calculate and display the average, maximum, minimum price of each publisher.
+SELECT P.PNAME, AVG(B.PRICE) AS AVG_PRICE, MAX(B.PRICE) AS MAX_PRICE, MIN(B.PRICE) AS MIN_PRICE
+FROM PUBLISHER P
+JOIN BOOK B ON P.PID = B.PID
+GROUP BY P.PNAME;
+
+-- 6. Delete details of all books having a page count less than 100.
+DELETE FROM BOOK WHERE PAGE_COUNT < 100;
+
+-- 7. Retrieve details of all authors residing in the city Pune and whose name begins with the character 'C'.
+SELECT * FROM AUTHOR WHERE CITY = 'Pune' AND ANAME LIKE 'C%';
+
+-- 8. Retrieve details of authors residing in the same city as 'Korth'.
+SELECT A.AID, A.ANAME, A.STATE, A.CITY, A.ZIP, A.PHONE, A.URL
+FROM AUTHOR A
+WHERE A.CITY = (SELECT CITY FROM AUTHOR WHERE ANAME = 'Korth');
+
+
