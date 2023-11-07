@@ -1,0 +1,67 @@
+7.	Consider the following database Project(project_id,proj_name,chief_arch) , project_id is primary key Employee(Emp_id,Emp_name) , Emp_id is primary key
+Assigned-To(Project_id,Emp_id)
+
+Find the SQL queries for the following:
+
+1.	Get the details of employees working on project C353
+2.	Get employee number of employees working on project C353
+3.	Obtain details of employees working on Database project
+4.	Get details of employees working on both C353 and C354
+5.	Get employee numbers of employees who do not work on project C453
+
+
+CREATE TABLE Project (
+    project_id VARCHAR(5) PRIMARY KEY,
+    proj_name VARCHAR(50),
+    chief_arch VARCHAR(50)
+);
+
+
+CREATE TABLE Employee (
+    Emp_id INT PRIMARY KEY,
+    Emp_name VARCHAR(50)
+);
+
+
+CREATE TABLE Assigned_To (
+    Project_id VARCHAR(5),
+    Emp_id INT);
+
+
+INSERT INTO Project VALUES ('C353', 'Project C353', 'Chief C353');
+INSERT INTO Project VALUES ('C354', 'Project C354', 'Chief C354');
+INSERT INTO Employee VALUES (1, 'Employee 1');
+INSERT INTO Employee VALUES (2, 'Employee 2');
+INSERT INTO Employee VALUES (3, 'Employee 3');
+INSERT INTO Assigned_To VALUES ('C353', 1);
+INSERT INTO Assigned_To VALUES ('C353', 2);
+INSERT INTO Assigned_To VALUES ('C354', 2);
+INSERT INTO Assigned_To VALUES ('C354', 3);
+
+
+
+1.Get the details of employees working on project C353:
+SELECT E.Emp_id, E.Emp_name
+FROM Employee E
+JOIN Assigned_To A ON E.Emp_id = A.Emp_id
+WHERE A.Project_id = 'C353';
+
+2.Get employee number of employees working on project C353:
+SELECT COUNT(*) AS EmployeeCount
+FROM Employee E
+JOIN Assigned_To A ON E.Emp_id = A.Emp_id
+WHERE A.Project_id = 'C353';
+
+3.3.	Obtain details of employees working on Database project
+SELECT E.Emp_id, E.Emp_name
+FROM Employee E
+JOIN Assigned_To A ON E.Emp_id = A.Emp_id
+JOIN Project P ON A.Project_id = P.project_id
+WHERE P.proj_name = 'Database project';
+
+4.	Get details of employees working on both C353 and C354
+SELECT E.Emp_id, E.Emp_name
+FROM Employee E
+JOIN Assigned_To A1 ON E.Emp_id = A1.Emp_id
+JOIN Assigned_To A2 ON E.Emp_id = A2.Emp_id
+WHERE A1.Project_id = 'C353' AND A2.Project_id = 'C354';
